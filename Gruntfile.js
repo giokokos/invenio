@@ -1,351 +1,463 @@
+/*
+ * This file is part of Invenio.
+ * Copyright (C) 2014 CERN.
+ *
+ * Invenio is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * Invenio is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Invenio; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+ */
+
 'use strict';
 
 module.exports = function (grunt) {
-    // show elapsed time at the end
-    require('time-grunt')(grunt);
-    // load all grunt tasks
-    require('load-grunt-tasks')(grunt);
+	// show elapsed time at the end
+	require('time-grunt')(grunt);
+	// load all grunt tasks
+	require('load-grunt-tasks')(grunt);
 
-    // Project configuration
-    grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json'),
+  var globalConfig = {
+    bower_path: 'bower_components',
+  };
 
-        copy: {
-            // css
-            css: {
-                expand: true,
-                flatten: true,
-                cwd: 'bower_components/',
-                src: ['bootstrap/docs/assets/css/bootstrap*.css'
-                     ,'jquery-tokeninput/styles/token-input-facebook.css'
-                     ,'jquery-tokeninput/styles/token-input.css'
-                     ,'jquery.bookmark/jquery.bookmark.css'
-                     ,'datatables-colvis/media/css/ColVis.css'],
-                dest: 'invenio/base/static/css/'
-            },
-            // images
-            img: {
-                expand: true,
-                flatten: true,
-                cwd: 'bower_components/',
-                src: ['bootstrap/docs/assets/img/glyphicons-halflings*.png'
-                     ,'jquery.bookmark/bookmarks.png'
-                     ,'uploadify/uploadify*'
-                     ,'!uploadify/uploadify.php'
-                     ,'datatables-colvis/media/images/button.png'],
-                dest: 'invenio/base/static/img/'
-            },
-            // javascript
-            js: {
-                expand: true,
-                flatten: true,
-                cwd: 'bower_components/',
-                src: ['bootstrap/docs/assets/js/bootstrap.js'
-                     ,'bootstrap/docs/assets/js/bootstrap.min.js' 
-                     ,'jquery/jquery.min.js'
-                     ,'jquery-tokeninput/src/jquery.tokeninput.js'
-                     ,'jquery.bookmark/jquery.bookmark.min.js'
-                     ,'DataTables/media/js/jquery.dataTables.js'
-                     ,'jquery-flot/excanvas.min.js'
-                     ,'jquery-flot/jquery.flot.js'
-                     ,'jquery-flot/jquery.flot.selection.js'
-                     ,'jquery.hotkeys/jquery.hotkeys.js'
-                     ,'uploadify/jquery.uploadify.min.js'
-                     ,'json2/json2.js'
-                     ,'datatables-colvis/media/js/ColVis.js'],
-                dest: 'invenio/base/static/js/'
-            },
+  var targets = {
+    develop: 'develop',
+    deploy: 'deploy'
+  };
 
-            hogan: {
-                expand: true,
-                flatten: true,
-                cwd: 'bower_components/',
-                src: ['hogan/web/builds/2.0.0/hogan-2.0.0.js'],
-                dest: 'invenio/base/static/js/',
-                rename: function(dest, src) {
-                    return dest + src.substring(0, src.indexOf('-')) + '.js';
-                }
-            },
+  var buildConfig = {
+    develop: 'instance/static',
+    deploy: 'invenio/base/static'
+  };
 
-            jqueryUI: {
-                expand: true,
-                flatten: true,
-                cwd: 'bower_components/',
-                src: ['jquery.ui/jquery-1.8.2.js'],
-                dest: 'invenio/base/static/js/',
-                rename: function(dest, src) {
-                    return dest + src.substring(0, src.indexOf('-')) + '-ui.js';
-                }
-            },
+	// Project configuration
+	grunt.initConfig({
+		pkg: grunt.file.readJSON('package.json'),
+    globalConfig: globalConfig,
+    buildConfig: buildConfig,
 
-            jqueryTimePicker: {
-                expand: true,
-                flatten: true,
-                cwd: 'bower_components/',
-                src: ['jquery.ui.timepicker/index.js'],
-                dest: 'invenio/base/static/js/',
-                rename: function(dest, src) {
-                    var res = src.replace(src.substring(0),'jquery-ui-timepicker-addon.js');
-                    return dest + res;
-                }
-            },
+		copy: {
+			css: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= globalConfig.bower_path %>',
+				src: ['bootstrap/dist/css/bootstrap*.css'
+					   ,'jquery-tokeninput/styles/token-input-facebook.css'
+					   ,'jquery-tokeninput/styles/token-input.css'
+					   ,'jquery.bookmark/jquery.bookmark.css'
+					   ,'datatables-colvis/media/css/ColVis.css'],
+				dest: '<%= grunt.option(\'target\') %>/css/'
+			},
 
-            MultiFile: {
-                expand: true,
-                flatten: true,
-                cwd: 'bower_components/',
-                src: ['jquery.multifile/index.js'],
-                dest: 'invenio/base/static/js/',
-                rename: function(dest, src) {
-                    var res = src.replace(src.substring(0),'jquery.MultiFile.pack.js');
-                    return dest + res;
-                }
-            },
+			img: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= globalConfig.bower_path %>/',
+				src: ['jquery.bookmark/bookmarks.png'
+					   ,'uploadify/uploadify*'
+					   ,'!uploadify/uploadify.php'
+					   ,'datatables-colvis/media/images/button.png'],
+				dest: '<%= grunt.option(\'target\') %>/img/'
+			},
 
-            ajaxPager: {
-                expand: true,
-                flatten: true,
-                cwd: 'bower_components/',
-                src: ['jquery.ajaxpager/index.js'],
-                dest: 'invenio/base/static/js/',
-                rename: function(dest, src) {
-                    var res = src.replace(src.substring(0),'jquery.ajaxPager.js');
-                    return dest + res;
-                }
-            },
+			js: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= globalConfig.bower_path %>/',
+				src: ['bootstrap/dist/js/bootstrap.js'
+    				 ,'bootstrap/dist/js/bootstrap.min.js' 
+    				 ,'typeahead.js/dist/typeahead.js'
+    				 ,'typeahead.js/dist/typeahead.min.js'
+    				 ,'jquery/jquery.min.js'
+    				 ,'jquery-tokeninput/src/jquery.tokeninput.js'
+    				 ,'jquery.bookmark/jquery.bookmark.min.js'
+    				 ,'DataTables/media/js/jquery.dataTables.js'
+    				 ,'jquery-flot/excanvas.min.js'
+    				 ,'jquery-flot/jquery.flot.js'
+    				 ,'jquery-flot/jquery.flot.selection.js'
+    				 ,'jquery.hotkeys/jquery.hotkeys.js'
+    				 ,'uploadify/jquery.uploadify.min.js'
+    				 ,'json2/json2.js'
+    				 ,'datatables-colvis/media/js/ColVis.js'],
+				dest: '<%= grunt.option(\'target\') %>/js/'
+			},
 
-            form: {
-                expand: true,
-                flatten: true,
-                cwd: 'bower_components/',
-                src: ['form/index.js'],
-                dest: 'invenio/base/static/js/',
-                rename: function(dest, src) {
-                    var res = src.replace(src.substring(0),'jquery.form.js');
-                    return dest + res;
-                }
-            },
+			fonts: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= globalConfig.bower_path %>/',
+				src: ['bootstrap/dist/fonts/glyphicons-halflings-regular.*'],
+				dest: '<%= grunt.option(\'target\') %>/fonts/'
+			},
 
-            prism: {
-                expand: true,
-                flatten: true,
-                cwd: 'bower_components/',
-                src: ['prism/index.js'],
-                dest: 'invenio/base/static/js/',
-                rename: function(dest, src) {
-                    var res = src.replace(src.substring(0),'prism.js');
-                    return dest + res;
-                }
-            },
+			hogan: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= globalConfig.bower_path %>/',
+				src: ['hogan/web/builds/2.0.0/hogan-2.0.0.js'],
+				dest: '<%= grunt.option(\'target\') %>/js/',
+				rename: function(dest, src) {
+					return dest + src.substring(0, src.indexOf('-')) + '.js';
+				}
+			},
 
-            swfobject: {
-                expand: true,
-                flatten: true,
-                cwd: 'bower_components/',
-                src: ['swfobject/index.js'],
-                dest: 'invenio/base/static/js/',
-                rename: function(dest, src) {
-                    var res = src.replace(src.substring(0),'swfobject.js');
-                    return dest + res;
-                }
-            },
+			jqueryUI: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= globalConfig.bower_path %>/',
+				src: ['jquery.ui/jquery-1.8.2.js'],
+				dest: '<%= grunt.option(\'target\') %>/js/',
+				rename: function(dest, src) {
+					return dest + src.substring(0, src.indexOf('-')) + '-ui.js';
+				}
+			},
 
-            MathJax: {
-                expand: true,
-                cwd: 'bower_components/MathJax/',
-                src: ['**'],
-                dest: 'invenio/base/static/MathJax/'
-            },
+			jqueryTimePicker: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= globalConfig.bower_path %>/',
+				src: ['jquery.ui.timepicker/index.js'],
+				dest: '<%= grunt.option(\'target\') %>/js/',
+				rename: function(dest, src) {
+					var res = src.replace(src.substring(0),'jquery-ui-timepicker-addon.js');
+					return dest + res;
+				}
+			},
 
-            ckeditor: {
-                expand: true,
-                cwd: 'bower_components/ckeditor/',
-                src: ['**', '!**_samples/**', '!**_source/**', '!**php**', '!**_**', '!**pack**', '!**ckeditor.asp'],
-                dest: 'invenio/base/static/ckeditor/' 
-            },
+			MultiFile: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= globalConfig.bower_path %>/',
+				src: ['jquery.multifile/index.js'],
+				dest: '<%= grunt.option(\'target\') %>/js/',
+				rename: function(dest, src) {
+					var res = src.replace(src.substring(0),'jquery.MultiFile.pack.js');
+					return dest + res;
+				}
+			},
 
-            jqueryTreeview: {
-                expand: true,
-                cwd: 'bower_components/jquery.treeview/',
-                src: ['**'],
-                dest: 'invenio/base/static/js/jquery-treeview/'
-            },
+			ajaxPager: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= globalConfig.bower_path %>/',
+				src: ['jquery.ajaxpager/index.js'],
+				dest: '<%= grunt.option(\'target\') %>/js/',
+				rename: function(dest, src) {
+					var res = src.replace(src.substring(0),'jquery.ajaxPager.js');
+					return dest + res;
+				}
+			},
 
-            jqueryTableSorter: {
-                expand: true,
-                cwd: 'bower_components/jquery.tablesorter/',
-                src: ['**'],
-                dest: 'invenio/base/static/js/tablesorter/'
-            },
+			form: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= globalConfig.bower_path %>/',
+				src: ['form/index.js'],
+				dest: '<%= grunt.option(\'target\') %>/js/',
+				rename: function(dest, src) {
+					var res = src.replace(src.substring(0),'jquery.form.js');
+					return dest + res;
+				}
+			},
 
-            // jqueryUI 
-            themesUI: {
-                expand: true,
-                cwd: 'bower_components/jquery.ui/themes/',
-                src: ['**'],
-                dest: 'invenio/base/static/img/jquery-ui/'
-            },
+			prism: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= globalConfig.bower_path %>/',
+				src: ['prism/index.js'],
+				dest: '<%= grunt.option(\'target\') %>/js/',
+				rename: function(dest, src) {
+					var res = src.replace(src.substring(0),'prism.js');
+					return dest + res;
+				}
+			},
 
-            imagesUI: {
-                expand: true,
-                cwd: 'bower_components/jquery.ui/themes/base/images/',
-                src: ['**'],
-                dest: 'invenio/base/static/img/images/'
-            }
-        },
+			swfobject: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= globalConfig.bower_path %>/',
+				src: ['swfobject/index.js'],
+				dest: '<%= grunt.option(\'target\') %>/js/',
+				rename: function(dest, src) {
+					var res = src.replace(src.substring(0),'swfobject.js');
+					return dest + res;
+				}
+			},
 
-        // minification of the JS files
-        uglify: {
-            jeditable: {
-                expand: true,
-                flatten: true,
-                cwd: 'bower_components/jquery_jeditable/',
-                src: ['js/jquery.jeditable.js'],
-                dest: 'invenio/base/static/js/',
-                ext: '.jeditable.mini.js'
-            },
+			MathJax: {
+				expand: true,
+				cwd: '<%= globalConfig.bower_path %>/MathJax/',
+				src: ['**'],
+				dest: '<%= grunt.option(\'target\') %>/MathJax/'
+			},
 
-            jqueryUI: {
-                expand: true,
-                flatten: true,
-                cwd: 'invenio/base/static/js/',
-                src: ['jquery-ui.js'],
-                dest: 'invenio/base/static/js/',
-                ext: '.min.js'
-            },
+			ckeditor: {
+				expand: true,
+				cwd: '<%= globalConfig.bower_path %>/ckeditor/',
+				src: ['**', '!**_samples/**', '!**_source/**', '!**php**', '!**_**', '!**pack**', '!**ckeditor.asp'],
+				dest: '<%= grunt.option(\'target\') %>/ckeditor/' 
+			},
 
-            dataTables: {
-                expand: true,
-                flatten: true,
-                cwd: 'invenio/base/static/js/',
-                src: ['jquery.dataTables.js'],
-                dest: 'invenio/base/static/js/',
-                ext: '.dataTables.min.js'                
-            },
+			jqueryTreeview: {
+				expand: true,
+				cwd: '<%= globalConfig.bower_path %>/jquery.treeview/',
+				src: ['**'],
+				dest: '<%= grunt.option(\'target\') %>/js/jquery-treeview/'
+			},
 
-            jqueryFlot: {
-                expand: true,
-                flatten: true,
-                cwd: 'invenio/base/static/js/',
-                src: ['jquery.flot.js'],
-                dest: 'invenio/base/static/js/',
-                ext: '.flot.min.js'   
-            },
+			jqueryTableSorter: {
+				expand: true,
+				cwd: '<%= globalConfig.bower_path %>/jquery.tablesorter/',
+				src: ['**'],
+				dest: '<%= grunt.option(\'target\') %>/js/tablesorter/'
+			},
 
-            jqueryFlotSelection: {
-                expand: true,
-                flatten: true,
-                cwd: 'invenio/base/static/js/',
-                src: ['jquery.flot.selection.js'],
-                dest: 'invenio/base/static/js/',
-                ext: '.flot.selection.min.js'   
-            }
-        },
+			// jqueryUI 
+			themesUI: {
+				expand: true,
+				cwd: '<%= globalConfig.bower_path %>/jquery.ui/themes/',
+				src: ['**'],
+				dest: '<%= grunt.option(\'target\') %>/img/jquery-ui/'
+			},
 
-        // minification of the CSS files
-        cssmin: {
-            minify: {
-                expand: true,
-                cwd: 'invenio/base/static/css/',
-                src: ['bootstrap*.css', '!bootstrap*.min.css'],
-                dest: 'invenio/base/static/css/',
-                ext: '.min.css'
-            }
-        },
+			imagesUI: {
+				expand: true,
+				cwd: '<%= globalConfig.bower_path %>/jquery.ui/themes/base/images/',
+				src: ['**'],
+				dest: '<%= grunt.option(\'target\') %>/img/images/'
+			}
+		},
 
-        //////////////////////////////////////////////////////////////
-        /////////////////////// CLEANING..... ////////////////////////
-        //////////////////////////////////////////////////////////////
-        clean: {
-            css: {
-                expand: true,
-                cwd: 'invenio/base/static/css/',
-                src: ['bootstrap*.css'
-                     ,'token-input-facebook.css'
-                     ,'token-input.css'
-                     ,'jquery.bookmark.css'
-                     ,'ColVis.css']
-            },
+		// minification of the JS files
+		uglify: {
+			jeditable: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= globalConfig.bower_path %>/jquery_jeditable/',
+				src: ['js/jquery.jeditable.js'],
+				dest: '<%= grunt.option(\'target\') %>/js/',
+				ext: '.jeditable.mini.js'
+			},
 
-            img: {
-                expand: true,
-                cwd: 'invenio/base/static/img/',
-                src: ['glyphicons-halflings*.png'
-                     ,'bookmarks.png'
-                     ,'uploadify*'
-                     ,'button.png']
-            },
+			jqueryUI: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= grunt.option(\'target\') %>/js/',
+				src: ['jquery-ui.js'],
+				dest: '<%= grunt.option(\'target\') %>/js/',
+				ext: '.min.js'
+			},
 
-            js: {
-                expand: true,
-                cwd: 'invenio/base/static/js/',
-                src: ['bootstrap.js'
-                     ,'bootstrap.min.js' 
-                     ,'jquery.min.js'
-                     ,'jquery.tokeninput.js'
-                     ,'hogan.js'// hogan
-                     ,'jquery.jeditable.mini.js' // jeditable
-                     ,'jquery-ui*.js' // jqueryUI
-                     ,'jquery-ui-timepicker-addon.js' // timepicker
-                     ,'jquery.MultiFile.pack.js' // multifile
-                     ,'jquery.ajaxPager.js' // ajaxpager 
-                     ,'jquery.bookmark.min.js' // bookmark 
-                     ,'jquery.dataTables*.js' // dataTables
-                     ,'excanvas.min.js' // excanvas
-                     ,'jquery.flot*.js' // flot
-                     ,'jquery.form.js'  // form
-                     ,'jquery.hotkeys.js' // hotkeys
-                     ,'jquery.uploadify.min.js' // uploadify
-                     ,'json2.js' // json2
-                     ,'prism.js' // prism
-                     ,'swfobject.js' // swfobject
-                     ,'ColVis.js']  // ColVis
-            },
+			dataTables: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= grunt.option(\'target\') %>/js/',
+				src: ['jquery.dataTables.js'],
+				dest: '<%= grunt.option(\'target\') %>/js/',
+				ext: '.dataTables.min.js'                
+			},
 
-            MathJax: {
-                expand: true,
-                cwd: 'invenio/base/static/MathJax/',
-                src: ['**']
-            },
+			jqueryFlot: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= grunt.option(\'target\') %>/js/',
+				src: ['jquery.flot.js'],
+				dest: '<%= grunt.option(\'target\') %>/js/',
+				ext: '.flot.min.js'   
+			},
 
-            // TO DO: make it work keeping the folders included
-            // not working properly removes all the files
-            ckeditor: {
-                expand: true,
-                cwd: 'invenio/base/static/ckeditor/',
-                src: ["**", '!**plugins/scientificchar/**']
-            },
+			jqueryFlotSelection: {
+				expand: true,
+				flatten: true,
+				cwd: '<%= grunt.option(\'target\') %>/js/',
+				src: ['jquery.flot.selection.js'],
+				dest: '<%= grunt.option(\'target\') %>/js/',
+				ext: '.flot.selection.min.js'   
+			}
+		},
 
-            jqueryTreeview: {
-                expand: true,
-                cwd: 'invenio/base/static/js/jquery-treeview/',
-                src: ['**']
-            },
+		// minification of the CSS files
+		cssmin: {
+			minify: {
+				expand: true,
+				cwd: '<%= grunt.option(\'target\') %>/css/',
+				src: ['bootstrap*.css', '!bootstrap*.min.css'],
+				dest: '<%= grunt.option(\'target\') %>/css/',
+				ext: '.min.css'
+			}
+		},
 
-            jqueryTableSorter: {
-                expand: true,
-                cwd: 'invenio/base/static/js/tablesorter/',
-                src: ['**']
-            },
+		
+		//// CLEANING... ////
+		actualclean: {
+      css: {
+				expand: true,
+				cwd: '<%= grunt.option(\'target\') %>/css/',
+				src: ['bootstrap*.css'
+  					 ,'token-input-facebook.css'
+  					 ,'token-input.css'
+  					 ,'jquery.bookmark.css'
+  					 ,'ColVis.css']
+			},
+   		
+      img: {
+				expand: true,
+				cwd: '<%= grunt.option(\'target\') %>/img/',
+				src: ['bookmarks.png'
+  					 ,'uploadify*'
+  					 ,'button.png']
+			},
 
-            imagesUI: {
-                expand: true,
-                cwd: 'invenio/base/static/img/images/',
-                src: ['**'],
-            },
+			fonts: {
+				expand: true,
+				cwd: '<%= grunt.option(\'target\') %>/fonts/',
+				src: ['**']
+			},
+					   
+			js: {
+				expand: true,
+				cwd: '<%= grunt.option(\'target\') %>/js/',
+				src: ['bootstrap.js'
+  					 ,'bootstrap.min.js' 
+  					 ,'typeahead.js'
+  					 ,'typeahead.min.js'
+  					 ,'jquery.min.js'
+  					 ,'jquery.tokeninput.js'
+  					 ,'hogan.js'
+  					 ,'jquery.jeditable.mini.js' 
+  					 ,'jquery-ui*.js' 
+  					 ,'jquery-ui-timepicker-addon.js' 
+  					 ,'jquery.MultiFile.pack.js' 
+  					 ,'jquery.ajaxPager.js' 
+  					 ,'jquery.bookmark.min.js' 
+  					 ,'jquery.dataTables*.js' 
+  					 ,'excanvas.min.js' 
+  					 ,'jquery.flot*.js' 
+  					 ,'jquery.form.js'  
+  					 ,'jquery.hotkeys.js' 
+  					 ,'jquery.uploadify.min.js' 
+  					 ,'json2.js' 
+  					 ,'prism.js' 
+  					 ,'swfobject.js' 
+  					 ,'ColVis.js'] 
+			},
 
-            themesUI: {
-                expand: true,
-                cwd: 'invenio/base/static/img/jquery-ui/',
-                src: ['**'],
-            }
+			MathJax: {
+				expand: true,
+				cwd: '<%= grunt.option(\'target\') %>/MathJax/',
+				src: ['**']
+			},
+
+			ckeditor: {
+				expand: true,
+				cwd: '<%= grunt.option(\'target\') %>/ckeditor/',
+				src: ["**", '!**plugins/scientificchar/**']
+			},
+
+			jqueryTreeview: {
+				expand: true,
+				cwd: '<%= grunt.option(\'target\') %>/js/jquery-treeview/',
+				src: ['**']
+			},
+
+			jqueryTableSorter: {
+				expand: true,
+				cwd: '<%= grunt.option(\'target\') %>/js/tablesorter/',
+				src: ['**']
+			},
+
+			imagesUI: {
+				expand: true,
+				cwd: '<%= grunt.option(\'target\') %>/img/images/',
+				src: ['**']
+			},
+
+			themesUI: {
+				expand: true,
+				cwd: '<%= grunt.option(\'target\') %>/img/jquery-ui/',
+				src: ['**']
+			},
+
+      //clean the folder if it's empty
+      empty: {
+        src: '<%= grunt.option(\'target\') %>/**/*',
+        filter: function(filepath) {
+          return (grunt.file.isDir(filepath) && require('fs').readdirSync(filepath).length === 0);
         }
-
-
-    });
-
-    // RUN: `$ grunt clean` to clean all the installed dependencies
+      }
+		}
+	});
+	
+  // build task
+  grunt.registerTask('build', 'Set the output folder for the build.', function () {
     
-    grunt.registerTask('default', ['copy', 'uglify', 'cssmin']);
+    if (grunt.option('path') === undefined) {
+      if (grunt.option('target') === 'develop') {
+        grunt.option('target', buildConfig.develop);
+      } else if (grunt.option('target') === 'deploy') {
+        grunt.option('target', buildConfig.deploy);
+      } else if (grunt.option('target') === undefined) {
+        grunt.option('target', buildConfig.develop);
+      } else {
+        grunt.task.run('help');  
+        return;
+      }
+      grunt.task.run(['copy', 'uglify', 'cssmin']); 
+    } else {
+      grunt.option('target', grunt.option('path'));
+      grunt.task.run(['copy', 'uglify', 'cssmin']);   
+    }
+
+  });
+
+  // clean task
+  grunt.renameTask('clean', 'actualclean');
+
+  grunt.registerTask('clean', 'Clean the files.', function () {
+
+    if (grunt.option('path') === undefined) {
+      if (grunt.option('target') === 'develop') {
+        grunt.option('target', buildConfig.develop);
+      } else if (grunt.option('target') === 'deploy') {
+        grunt.option('target', buildConfig.deploy);
+      } else if (grunt.option('target') === undefined) {
+        grunt.option('target', buildConfig.develop);
+      } else {
+        grunt.task.run('help');  
+        return;
+      }
+      grunt.task.run('actualclean');
+    } else {
+      grunt.option('target', grunt.option('path'));
+      grunt.task.run('actualclean');
+    }
+
+  });
+
+  // help task
+  grunt.registerTask('help', 'Help menu.', function () {
+    grunt.log.writeln("\nAvailable options for Grunt" + "\n\n" +
+                      "Building:" + "\n" +
+                      "grunt build --target=develop # build for development mode" + "\n" +
+                      "grunt build --target=deploy  # build for deployment mode" + "\n" +
+                      "grunt build                  # build for development mode" + "\n\n" +
+                      "Building with custom paths:" + "\n" +
+                      "grunt build --path='path/to/folder'  # build for custom mode" + "\n\n" +
+                      "Cleaning:" + "\n" +
+                      "grunt clean --target=develop # clean for development mode" + "\n" +
+                      "grunt clean --target=deploy  # clean for deployment mode" + "\n" +
+                      "grunt clean                  # clean for development mode" + "\n\n" +
+                      "Cleaning with custom paths:" + "\n" +
+                      "grunt clean --path='path/to/folder'  # clean for custom mode" + "\n");
+  });
 
 };
