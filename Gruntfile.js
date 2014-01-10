@@ -99,6 +99,18 @@ module.exports = function (grunt) {
 				dest: '<%= grunt.option(\'target\') %>/fonts/'
 			},
 
+      typeaheadJSbootstrap: {
+        expand: true,
+        flatten: true,
+        cwd: '<%= globalConfig.bower_path %>/',
+        src: ['typeahead.js-bootstrap/index.css'],
+        dest: '<%= grunt.option(\'target\') %>/css/',
+        rename: function(dest, src) {
+          var res = src.replace(src.substring(0),'typeahead.js-bootstrap.css');
+          return dest + res;
+        }
+      },
+
 			hogan: {
 				expand: true,
 				flatten: true,
@@ -306,7 +318,8 @@ module.exports = function (grunt) {
   					 ,'token-input-facebook.css'
   					 ,'token-input.css'
   					 ,'jquery.bookmark.css'
-  					 ,'ColVis.css']
+  					 ,'ColVis.css'
+             ,'typeahead.js-bootstrap.css']
 			},
    		
       img: {
